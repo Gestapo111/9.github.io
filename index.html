@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación: LA TIERRA Y EL SER HUMANO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Evaluación: LA TIERRA Y EL SER HUMANO</h1>
+    <div class="quiz-container">
+        <div id="quiz"></div>
+        <button id="submit">Enviar respuestas</button>
+        <div id="results"></div>
+    </div>
+    <footer>
+        &copy; derechos reservados Prof. Alberto Sanchez
+    </footer>
+    <script>
+        const quizData = [
+            {
+                question: "¿Qué es la tectónica de placas?",
+                answers: [
+                    { text: "La teoría que explica el movimiento de las placas terrestres.", correct: true },
+                    { text: "La teoría que explica la formación de volcanes.", correct: false },
+                    { text: "La teoría que explica la formación de montañas.", correct: false },
+                    { text: "La teoría que explica los ciclos del agua.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el ciclo del agua?",
+                answers: [
+                    { text: "El movimiento continuo de agua entre la superficie terrestre y la atmósfera.", correct: true },
+                    { text: "El movimiento continuo de agua entre la superficie terrestre y el subsuelo.", correct: false },
+                    { text: "El movimiento continuo de agua entre la atmósfera y el subsuelo.", correct: false },
+                    { text: "El movimiento continuo de agua entre los océanos y los ríos.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la erosión?",
+                answers: [
+                    { text: "El proceso de desgaste y transporte de materiales rocosos por agentes naturales.", correct: true },
+                    { text: "El proceso de formación de rocas sedimentarias.", correct: false },
+                    { text: "El proceso de solidificación de la lava.", correct: false },
+                    { text: "El proceso de formación de fósiles.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la meteorización?",
+                answers: [
+                    { text: "El proceso  de descomposición de las rocas en partículas más pequeñas por acción de agentes atmosféricos.", correct: true },
+                    { text: "El proceso de formación de rocas ígneas.", correct: false },
+                    { text: "El proceso de solidificación de la lava.", correct: false },
+                    { text: "El proceso de formación de fósiles.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el ciclo del carbono?",
+                answers: [
+                    { text: "El movimiento continuo de carbono entre la atmósfera, los organismos y la Tierra.", correct: true },
+                    { text: "El movimiento continuo de carbono entre la atmósfera y los océanos.", correct: false },
+                    { text: "El movimiento continuo de carbono entre la atmósfera y el subsuelo.", correct: false },
+                    { text: "El movimiento continuo de carbono entre los organismos y el subsuelo.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la fotosíntesis?",
+                answers: [
+                    { text: "El proceso por el cual las plantas y otros organismos convierten la luz solar en energía química.", correct: true },
+                    { text: "El proceso por el cual los animales convierten la luz solar en energía química.", correct: false },
+                    { text: "El proceso por el cual las plantas convierten el dióxido de carbono en oxígeno.", correct: false },
+                    { text: "El proceso por el cual los animales convierten el dióxido de carbono en oxígeno.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la respiración celular?",
+                answers: [
+                    { text: "El proceso por el cual los organismos convierten la glucosa y el oxígeno en energía, dióxido de carbono y agua.", correct: true },
+                    { text: "El proceso por el cual los organismos convierten la luz solar en energía química.", correct: false },
+                    { text: "El proceso por el cual las plantas convierten el dióxido de carbono en oxígeno.", correct: false },
+                    { text: "El proceso por el cual los animales convierten el dióxido de carbono en oxígeno.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el ciclo del nitrógeno?",
+                answers: [
+                    { text: "El movimiento continuo de nitrógeno entre la atmósfera, los organismos y la Tierra.", correct: true },
+                    { text: "El movimiento continuo de nitrógeno entre la atmósfera y los océanos.", correct: false },
+                    { text: "El movimiento continuo de nitrógeno entre la atmósfera y el subsuelo.", correct: false },
+                    { text: "El movimiento continuo de nitrógeno entre los organismos y el subsuelo.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la cadena alimentaria?",
+                answers: [
+                    { text: "La secuencia de transferencia de energía y nutrientes a través de diferentes niveles tróficos en un ecosistema.", correct: true },
+                    { text: "La secuencia de transferencia de carbono a través de diferentes niveles tróficos en un ecosistema.", correct: false },
+                    { text: "La secuencia de transferencia de nitrógeno a través de diferentes niveles tróficos en un ecosistema.", correct: false },
+                    { text: "La secuencia de transferencia de agua a través de diferentes niveles tróficos en un ecosistema.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un ecosistema?",
+                answers: [
+                    { text: "Un sistema formado por una comunidad de organismos y su entorno físico.", correct: true },
+                    { text: "Un sistema formado por una comunidad de organismos de la misma especie.", correct: false },
+                    { text: "Un sistema formado por una comunidad de organismos de diferentes especies.", correct: false },
+                    { text: "Un sistema formado por una comunidad de organismos y su entorno químico.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la biodiversidad?",
+                answers: [
+                    { text: "La variedad de especies, genes y ecosistemas en un área determinada.", correct: true },
+                    { text: "La variedad de especies en un área determinada.", correct: false },
+                    { text: "La variedad de genes en un área determinada.", correct: false },
+                    { text: "La variedad de ecosistemas en un área determinada.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un bioma?",
+                answers: [
+                    { text: "Una gran región geográfica caracterizada por un tipo específico de clima, flora y fauna.", correct: true },
+                    { text: "Una pequeña región geográfica caracterizada por un tipo específico de clima, flora y fauna.", correct: false },
+                    { text: "Una gran región geográfica caracterizada por una variedad de climas, flora y fauna.", correct: false },
+                    { text: "Una pequeña región geográfica caracterizada por una variedad de climas, flora y fauna.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el cambio climático?",
+                answers: [
+                    { text: "Un cambio significativo y duradero en los patrones del clima en la Tierra.", correct: true },
+                    { text: "Un cambio temporal en los patrones del clima en la Tierra.", correct: false },
+                    { text: "Un cambio en los patrones del clima en una región específica.", correct: false },
+                    { text: "Un cambio en los patrones del clima en una temporada específica.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el calentamiento global?",
+                answers: [
+                    { text: "El aumento gradual de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: true },
+                    { text: "El enfriamiento gradual de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: false },
+                    { text: "El aumento temporal de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: false },
+                    { text: "El enfriamiento temporal de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la desertificación?",
+                answers: [
+                    { text: "La degradación de tierras áridas, semiáridas y subhúmedas secas debido a diversas causas, incluidas las actividades humanas.", correct: true },
+                    { text: "La formación de desiertos debido a la falta de agua.", correct: false },
+                    { text: "La formación de desiertos debido a la actividad volcánica.", correct: false },
+                    { text: "La formación de desiertos debido a la actividad tectónica.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la deforestación?",
+                answers: [
+                    { text: "La eliminación de bosques y selvas para otros usos, como la agricultura o la urbanización.", correct: true },
+                    { text: "La plantación de árboles en áreas deforestadas.", correct: false },
+                    { text: "La conservación de bosques y selvas.", correct: false },
+                    { text: "La restauración de bosques y selvas.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la acidificación del océano?",
+                answers: [
+                    { text: "La disminución del pH del océano debido a la absorción de dióxido de carbono de la atmósfera.", correct: true },
+                    { text: "La disminución del pH del océano debido a la actividad volcánica.", correct: false },
+                    { text: "La disminución del pH del océano debido a la actividad tectónica.", correct: false },
+                    { text: "La disminución del pH del océano debido a la actividad humana.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es un acuífero?",
+                answers: [
+                    { text: "Una capa de roca o sedimento que almacena y permite el flujo de agua subterránea.", correct: true },
+                    { text: "Una capa de roca o sedimento que no almacena ni permite el flujo de agua subterránea.", correct: false },
+                    { text: "Una capa de roca o sedimento que almacena pero no permite el flujo de agua subterránea.", correct: false },
+                    { text: "Una capa de roca o sedimento que no almacena pero permite el flujo de agua subterránea.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la sobrepesca?",
+                answers: [
+                    { text: "La captura de peces a un ritmo que supera la capacidad de las poblaciones de peces para recuperarse.", correct: true },
+                    { text: "La captura de peces a un ritmo que no supera la capacidad de las poblaciones de peces para recuperarse.", correct: false },
+                    { text: "La captura de peces a un ritmo que es igual a la capacidad de las poblaciones de peces para recuperarse.", correct: false },
+                    { text: "La captura de peces a un ritmo que es menor que la capacidad de las poblaciones de peces para recuperarse.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la contaminación del agua?",
+                answers: [
+                    { text: "La introducción de sustancias nocivas en cuerpos de agua, afectando la calidad del agua y la vida acuática.", correct: true },
+                    { text: "La introducción de sustancias beneficiosas en cuerpos de agua, mejorando la calidad del agua y la vida acuática.", correct: false },
+                    { text: "La eliminación de sustancias nocivas en cuerpos de agua, mejorando la calidad del agua y la vida acuática.", correct: false },
+                    { text: "La eliminación de sustancias beneficiosas en cuerpos de agua, afectando la calidad del agua y la vida acuática.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la contaminación del aire?",
+                answers: [
+                    { text: "La introducción de sustancias nocivas en la atmósfera, afectando la calidad del aire y la salud humana.", correct: true },
+                    { text: "La introducción de sustancias beneficiosas en la atmósfera, mejorando la calidad del aire y la salud humana.", correct: false },
+                    { text: "La eliminación de sustancias nocivas en la atmósfera, mejorando la calidad del aire y la salud humana.", correct: false },
+                    { text: "La eliminación de sustancias beneficiosas en la atmósfera, afectando la calidad del aire y la salud humana.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la capa de ozono?",
+                answers: [
+                    { text: "Una capa de la atmósfera rica en ozono que protege la Tierra de la radiación ultravioleta dañina.", correct: true },
+                    { text: "Una capa de la atmósfera rica en oxígeno que protege la Tierra de la radiación ultravioleta dañina.", correct: false },
+                    { text: "Una capa de la atmósfera rica en nitrógeno que protege la Tierra de la radiación ultravioleta dañina.", correct: false },
+                    { text: "Una capa de la atmósfera rica en dióxido de carbono que protege la Tierra de la radiación ultravioleta dañina.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el efecto invernadero?",
+                answers: [
+                    { text: "El calentamiento de la superficie de la Tierra debido a la acumulación de gases de efecto invernadero en la atmósfera.", correct: true },
+                    { text: "El enfriamiento de la superficie de la Tierra debido a la acumulación de gases de efecto invernadero en la atmósfera.", correct: false },
+                    { text: "El calentamiento de la superficie de la Tierra debido a la acumulación de aerosoles en la atmósfera.", correct: false },
+                    { text: "El enfriamiento de la superficie de la Tierra debido a la acumulación de aerosoles en la atmósfera.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es el reciclaje?",
+                answers: [
+                    { text: "El proceso de convertir materiales desechados en nuevos productos para reducir el consumo de recursos y la contaminación.", correct: true },
+                    { text: "El proceso de eliminar materiales desechados en vertederos.", correct: false },
+                    { text: "El proceso de quemar materiales desechados para generar energía.", correct: false },
+                    { text: "El proceso de enterrar materiales desechados en el suelo.", correct: false }
+                ]
+            },
+            {
+                question: "¿Qué es la energía renovable?",
+                answers: [
+                    { text: "La energía obtenida de recursos que se pueden reponer naturalmente en un corto período de tiempo, como el sol, el viento y el agua.", correct: true },
+                    { text: "La energía obtenida de recursos que no se pueden reponer naturalmente en un corto período de tiempo, como el petróleo, el carbón y el gas natural.", correct: false },
+                    { text: "La energía obtenida de la quema de materiales desechados.", correct: false },
+                    { text: "La energía obtenida de la descomposición de materiales orgánicos.", correct: false }
+                ]
+            }
+        ];
+
+        let attempt = 0;
+        const maxAttempts = 3;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function loadQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = '';
+            quizData.forEach((data, index) => {
+                const questionContainer = document.createElement('div');
+                questionContainer.className = 'question';
+
+                const questionTitle = document.createElement('h3');
+                questionTitle.innerText = `${index + 1}. ${data.question}`;
+                questionContainer.appendChild(questionTitle);
+
+                const optionsList = document.createElement('ul');
+                optionsList.className = 'options';
+
+                shuffle(data.answers).forEach(answer => {
+                    const option = document.createElement('li');
+                    const optionLabel = document.createElement('label');
+                    const optionInput = document.createElement('input');
+                    optionInput.type = 'radio';
+                    optionInput.name = `question${index}`;
+                    optionInput.value = answer.correct;
+                    optionLabel.appendChild(optionInput);
+                    optionLabel.appendChild(document.createTextNode(answer.text));
+                    option.appendChild(optionLabel);
+                    optionsList.appendChild(option);
+                });
+
+                questionContainer.appendChild(optionsList);
+                quizContainer.appendChild(questionContainer);
+            });
+        }
+
+        function submitQuiz() {
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+                return;
+            }
+
+            const resultsContainer = document.getElementById('results');
+            const answers = document.querySelectorAll('input[type="radio"]:checked');
+            let score = 0;
+
+            quizData.forEach((data, index) => {
+                const selected = answers[index] ? answers[index].value === 'true' : null;
+                if (selected === true) {
+                    score += 0.4; // Each correct answer is worth 0.4 points
+                }
+            });
+
+            score = Math.round(score * 10) / 10; // Round to one decimal place
+            let feedback = quizData.map((data, index) => {
+                const selected = answers[index] ? answers[index].value === 'true' : null;
+                let result;
+                if (selected === null) {
+                    result = "No contestada";
+                } else if (selected === true) {
+                    result = "Correcta";
+                } else {
+                    result = "Incorrecta";
+                }
+                return `<p>${index + 1}. ${result}</p>`;
+            }).join("");
+
+            resultsContainer.innerHTML = `<h3>Resultados:</h3><p>Puntaje: ${score} / 10</p>${feedback}`;
+
+            attempt++;
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+            }
+        }
+
+        document.getElementById('submit').addEventListener('click', submitQuiz);
+
+        loadQuiz();
+    </script>
+</body>
+</html>
