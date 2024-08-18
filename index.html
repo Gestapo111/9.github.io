@@ -3,307 +3,446 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evaluación: LA TIERRA Y EL SER HUMANO</title>
+    <title>Evaluación Unidad 9: La Tierra y el Ser Humano</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            color: #333;
-        }
-        .quiz-container {
-            background-color: #fff;
             padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 800px;
+        }
+        #timer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
         }
         .question {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-        .options {
-            list-style-type: none;
-            padding: 0;
-        }
-        .options li {
+        .question h3 {
             margin-bottom: 10px;
         }
-        button {
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
         }
-        button:hover {
-            background-color: #218838;
-        }
-        #results {
-            margin-top: 20px;
-            font-size: 18px;
-        }
-        footer {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-            width: 100%;
-            text-align: center;
+        #resultsModal {
+            display: none;
             position: fixed;
-            bottom: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 500;
         }
     </style>
 </head>
 <body>
-    <h1>Evaluación: LA TIERRA Y EL SER HUMANO</h1>
-    <div class="quiz-container">
-        <div id="quiz"></div>
-        <button id="submit">Enviar respuestas</button>
-        <div id="results"></div>
+    <div id="timer" class="hidden">Tiempo restante: <span id="time">30:00</span></div>
+
+    <div class="container">
+        <div id="studentInfoForm">
+            <h2>Información del Estudiante</h2>
+            <form id="infoForm">
+                <label for="name">Nombre del Estudiante:</label>
+                <input type="text" id="name" required><br><br>
+                <label for="nie">NIE:</label>
+                <input type="text" id="nie" required><br><br>
+                <label for="unit">Unidad Evaluada:</label>
+                <input type="text" id="unit" value="Unidad 9: La Tierra y el Ser Humano" readonly><br><br>
+                <button type="submit">Iniciar Evaluación</button>
+            </form>
+        </div>
+
+        <div id="quiz" class="hidden">
+            <h2>Evaluación Unidad 9: La Tierra y el Ser Humano</h2>
+
+            <div id="questions-container"></div>
+
+            <button id="submitQuiz">OBTENER CALIFICACIÓN</button>
+        </div>
+
+        <div id="resultsModal">
+            <h2>Resultados</h2>
+            <p id="date"></p>
+            <p id="timeTaken"></p>
+            <p id="unitEvaluated"></p>
+            <p id="studentName"></p>
+            <p id="studentNIE"></p>
+            <p id="score"></p>
+            <p id="incorrectAnswers"></p>
+            <button id="closeModal">Cerrar</button>
+        </div>
+
+        <div id="overlay"></div>
     </div>
-    <footer>
-        &copy; derechos reservados Prof. Alberto Sanchez
-    </footer>
+
     <script>
-        const quizData = [
+        const nieList = ["4267837", "3850952", "3851018", "5032035", "19806181", "6297536", "2608724", "6262810", "4267838", "20162435", "3850923", "19806209", "4267828", "3850942"];
+        const maxTime = 30 * 60; // 30 minutos en segundos
+        let timeRemaining = maxTime;
+        const timerElement = document.getElementById('time');
+        let startTime;
+
+        const questions = [
+            // Indicador 9.1
             {
-                question: "¿Qué es la tectónica de placas?",
-                answers: [
-                    { text: "La teoría que explica el movimiento de las placas terrestres.", correct: true },
-                    { text: "La teoría que explica la formación de volcanes.", correct: false },
-                    { text: "La teoría que explica la formación de montañas.", correct: false },
-                    { text: "La teoría que explica los ciclos del agua.", correct: false }
+                id: 'q1',
+                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
+                question: "¿Cuál es la era geológica en la que se formaron las primeras formas de vida en la Tierra?",
+                options: [
+                    { value: 'a', text: "Precámbrico." },
+                    { value: 'b', text: "Paleozoico." },
+                    { value: 'c', text: "Mesozoico." },
+                    { value: 'd', text: "Cenozoico." }
                 ]
             },
             {
-                question: "¿Qué es el ciclo del agua?",
-                answers: [
-                    { text: "El movimiento continuo de agua entre la superficie terrestre y la atmósfera.", correct: true },
-                    { text: "El movimiento continuo de agua entre la superficie terrestre y el subsuelo.", correct: false },
-                    { text: "El movimiento continuo de agua entre la atmósfera y el subsuelo.", correct: false },
-                    { text: "El movimiento continuo de agua entre los océanos y los ríos.", correct: false }
+                id: 'q2',
+                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
+                question: "¿Qué evento marca el final del Mesozoico y el inicio del Cenozoico?",
+                options: [
+                    { value: 'a', text: "La extinción masiva de los dinosaurios." },
+                    { value: 'b', text: "La aparición de los primeros mamíferos." },
+                    { value: 'c', text: "La formación de los primeros continentes." },
+                    { value: 'd', text: "La gran explosión volcánica." }
                 ]
             },
             {
-                question: "¿Qué es la erosión?",
-                answers: [
-                    { text: "El proceso de desgaste y transporte de materiales rocosos por agentes naturales.", correct: true },
-                    { text: "El proceso de formación de rocas sedimentarias.", correct: false },
-                    { text: "El proceso de solidificación de la lava.", correct: false },
-                    { text: "El proceso de formación de fósiles.", correct: false }
+                id: 'q3',
+                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
+                question: "¿En qué era geológica se desarrollaron los dinosaurios?",
+                options: [
+                    { value: 'a', text: "Mesozoico." },
+                    { value: 'b', text: "Paleozoico." },
+                    { value: 'c', text: "Cenozoico." },
+                    { value: 'd', text: "Precámbrico." }
                 ]
             },
             {
-                question: "¿Qué es la meteorización?",
-                answers: [
-                    { text: "El proceso  de descomposición de las rocas en partículas más pequeñas por acción de agentes atmosféricos.", correct: true },
-                    { text: "El proceso de formación de rocas ígneas.", correct: false },
-                    { text: "El proceso de solidificación de la lava.", correct: false },
-                    { text: "El proceso de formación de fósiles.", correct: false }
+                id: 'q4',
+                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
+                question: "¿Cuál es la principal característica de la era Precámbrica?",
+                options: [
+                    { value: 'a', text: "El desarrollo de formas de vida unicelulares." },
+                    { value: 'b', text: "La aparición de los primeros reptiles." },
+                    { value: 'c', text: "La formación de los océanos." },
+                    { value: 'd', text: "La separación de los continentes." }
                 ]
             },
             {
-                question: "¿Qué es el ciclo del carbono?",
-                answers: [
-                    { text: "El movimiento continuo de carbono entre la atmósfera, los organismos y la Tierra.", correct: true },
-                    { text: "El movimiento continuo de carbono entre la atmósfera y los océanos.", correct: false },
-                    { text: "El movimiento continuo de carbono entre la atmósfera y el subsuelo.", correct: false },
-                    { text: "El movimiento continuo de carbono entre los organismos y el subsuelo.", correct: false }
+                id: 'q5',
+                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
+                question: "¿Cuál fue el evento geológico más importante durante el Paleozoico?",
+                options: [
+                    { value: 'a', text: "La explosión cámbrica que dio lugar a una gran diversidad de vida." },
+                    { value: 'b', text: "La separación de Pangea." },
+                    { value: 'c', text: "La extinción masiva del Permiano." },
+                    { value: 'd', text: "La formación de las primeras montañas." }
                 ]
             },
             {
-                question: "¿Qué es la fotosíntesis?",
-                answers: [
-                    { text: "El proceso por el cual las plantas y otros organismos convierten la luz solar en energía química.", correct: true },
-                    { text: "El proceso por el cual los animales convierten la luz solar en energía química.", correct: false },
-                    { text: "El proceso por el cual las plantas convierten el dióxido de carbono en oxígeno.", correct: false },
-                    { text: "El proceso por el cual los animales convierten el dióxido de carbono en oxígeno.", correct: false }
+                id: 'q6',
+                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
+                question: "¿Qué característica define la era Cenozoica?",
+                options: [
+                    { value: 'a', text: "El predominio de los mamíferos." },
+                    { value: 'b', text: "La aparición de los primeros anfibios." },
+                    { value: 'c', text: "La formación de la capa de ozono." },
+                    { value: 'd', text: "El desarrollo de la vida en los océanos." }
                 ]
             },
             {
-                question: "¿Qué es la respiración celular?",
-                answers: [
-                    { text: "El proceso por el cual los organismos convierten la glucosa y el oxígeno en energía, dióxido de carbono y agua.", correct: true },
-                    { text: "El proceso por el cual los organismos convierten la luz solar en energía química.", correct: false },
-                    { text: "El proceso por el cual las plantas convierten el dióxido de carbono en oxígeno.", correct: false },
-                    { text: "El proceso por el cual los animales convierten el dióxido de carbono en oxígeno.", correct: false }
+                id: 'q7',
+                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
+                question: "¿En qué era geológica ocurrió la explosión cámbrica?",
+                options: [
+                    { value: 'a', text: "Paleozoico." },
+                    { value: 'b', text: "Precámbrico." },
+                    { value: 'c', text: "Mesozoico." },
+                    { value: 'd', text: "Cenozoico." }
                 ]
             },
             {
-                question: "¿Qué es el ciclo del nitrógeno?",
-                answers: [
-                    { text: "El movimiento continuo de nitrógeno entre la atmósfera, los organismos y la Tierra.", correct: true },
-                    { text: "El movimiento continuo de nitrógeno entre la atmósfera y los océanos.", correct: false },
-                    { text: "El movimiento continuo de nitrógeno entre la atmósfera y el subsuelo.", correct: false },
-                    { text: "El movimiento continuo de nitrógeno entre los organismos y el subsuelo.", correct: false }
+                id: 'q8',
+                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
+                question: "¿Qué evento importante sucedió al final del periodo Precámbrico?",
+                options: [
+                    { value: 'a', text: "El surgimiento de organismos multicelulares." },
+                    { value: 'b', text: "La primera glaciación global." },
+                    { value: 'c', text: "La aparición de los primeros insectos." },
+                    { value: 'd', text: "La formación de las primeras montañas." }
                 ]
             },
             {
-                question: "¿Qué es la cadena alimentaria?",
-                answers: [
-                    { text: "La secuencia de transferencia de energía y nutrientes a través de diferentes niveles tróficos en un ecosistema.", correct: true },
-                    { text: "La secuencia de transferencia de carbono a través de diferentes niveles tróficos en un ecosistema.", correct: false },
-                    { text: "La secuencia de transferencia de nitrógeno a través de diferentes niveles tróficos en un ecosistema.", correct: false },
-                    { text: "La secuencia de transferencia de agua a través de diferentes niveles tróficos en un ecosistema.", correct: false }
+                id: 'q9',
+                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
+                question: "¿Cuál es la importancia de la era Mesozoica en la historia de la Tierra?",
+                options: [
+                    { value: 'a', text: "Fue la era de los grandes reptiles, incluyendo a los dinosaurios." },
+                    { value: 'b', text: "Fue cuando aparecieron los primeros mamíferos." },
+                    { value: 'c', text: "Es la era más reciente en la historia de la Tierra." },
+                    { value: 'd', text: "Marcó el fin de la vida en los océanos." }
                 ]
             },
             {
-                question: "¿Qué es un ecosistema?",
-                answers: [
-                    { text: "Un sistema formado por una comunidad de organismos y su entorno físico.", correct: true },
-                    { text: "Un sistema formado por una comunidad de organismos de la misma especie.", correct: false },
-                    { text: "Un sistema formado por una comunidad de organismos de diferentes especies.", correct: false },
-                    { text: "Un sistema formado por una comunidad de organismos y su entorno químico.", correct: false }
+                id: 'q10',
+                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
+                question: "¿Qué tipo de vida era dominante durante el Precámbrico?",
+                options: [
+                    { value: 'a', text: "Organismos unicelulares." },
+                    { value: 'b', text: "Mamíferos." },
+                    { value: 'c', text: "Reptiles." },
+                    { value: 'd', text: "Aves." }
+                ]
+            },
+            // Indicador 9.2
+            {
+                id: 'q11',
+                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
+                question: "¿Cuál es el principal rasgo que diferencia a los homínidos de otros primates?",
+                options: [
+                    { value: 'a', text: "La capacidad de caminar en posición bípeda." },
+                    { value: 'b', text: "El tamaño del cerebro." },
+                    { value: 'c', text: "El uso de herramientas." },
+                    { value: 'd', text: "La dieta omnívora." }
                 ]
             },
             {
-                question: "¿Qué es la biodiversidad?",
-                answers: [
-                    { text: "La variedad de especies, genes y ecosistemas en un área determinada.", correct: true },
-                    { text: "La variedad de especies en un área determinada.", correct: false },
-                    { text: "La variedad de genes en un área determinada.", correct: false },
-                    { text: "La variedad de ecosistemas en un área determinada.", correct: false }
+                id: 'q12',
+                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
+                question: "¿Cuál de los siguientes es considerado el primer homínido en utilizar herramientas de piedra?",
+                options: [
+                    { value: 'a', text: "*Homo habilis*." },
+                    { value: 'b', text: "*Australopithecus afarensis*." },
+                    { value: 'c', text: "*Homo erectus*." },
+                    { value: 'd', text: "*Homo neanderthalensis*." }
                 ]
             },
             {
-                question: "¿Qué es un bioma?",
-                answers: [
-                    { text: "Una gran región geográfica caracterizada por un tipo específico de clima, flora y fauna.", correct: true },
-                    { text: "Una pequeña región geográfica caracterizada por un tipo específico de clima, flora y fauna.", correct: false },
-                    { text: "Una gran región geográfica caracterizada por una variedad de climas, flora y fauna.", correct: false },
-                    { text: "Una pequeña región geográfica caracterizada por una variedad de climas, flora y fauna.", correct: false }
+                id: 'q13',
+                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
+                question: "¿Cuál es una característica distintiva de *Homo erectus*?",
+                options: [
+                    { value: 'a', text: "Era capaz de controlar el fuego." },
+                    { value: 'b', text: "Vivía principalmente en los árboles." },
+                    { value: 'c', text: "Era el más pequeño de los homínidos." },
+                    { value: 'd', text: "Tenía un cerebro más pequeño que *Australopithecus*." }
                 ]
             },
             {
-                question: "¿Qué es el cambio climático?",
-                answers: [
-                    { text: "Un cambio significativo y duradero en los patrones del clima en la Tierra.", correct: true },
-                    { text: "Un cambio temporal en los patrones del clima en la Tierra.", correct: false },
-                    { text: "Un cambio en los patrones del clima en una región específica.", correct: false },
-                    { text: "Un cambio en los patrones del clima en una temporada específica.", correct: false }
+                id: 'q14',
+                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
+                question: "¿Qué homínido se caracteriza por ser el primero en salir de África?",
+                options: [
+                    { value: 'a', text: "*Homo erectus*." },
+                    { value: 'b', text: "*Homo habilis*." },
+                    { value: 'c', text: "*Homo neanderthalensis*." },
+                    { value: 'd', text: "*Australopithecus afarensis*." }
                 ]
             },
             {
-                question: "¿Qué es el calentamiento global?",
-                answers: [
-                    { text: "El aumento gradual de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: true },
-                    { text: "El enfriamiento gradual de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: false },
-                    { text: "El aumento temporal de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: false },
-                    { text: "El enfriamiento temporal de la temperatura media de la atmósfera y los océanos de la Tierra.", correct: false }
+                id: 'q15',
+                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
+                question: "¿Cuál es la principal característica que diferencia a *Homo sapiens* de otros homínidos?",
+                options: [
+                    { value: 'a', text: "La capacidad avanzada para el lenguaje y la comunicación." },
+                    { value: 'b', text: "El uso de herramientas." },
+                    { value: 'c', text: "La postura bípeda." },
+                    { value: 'd', text: "La vida en grupos sociales." }
                 ]
             },
             {
-                question: "¿Qué es la desertificación?",
-                answers: [
-                    { text: "La degradación de tierras áridas, semiáridas y subhúmedas secas debido a diversas causas, incluidas las actividades humanas.", correct: true },
-                    { text: "La formación de desiertos debido a la falta de agua.", correct: false },
-                    { text: "La formación de desiertos debido a la actividad volcánica.", correct: false },
-                    { text: "La formación de desiertos debido a la actividad tectónica.", correct: false }
+                id: 'q16',
+                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
+                question: "¿Cuál de los siguientes homínidos tenía el cerebro más grande en relación con su tamaño corporal?",
+                options: [
+                    { value: 'a', text: "*Homo neanderthalensis*." },
+                    { value: 'b', text: "*Australopithecus afarensis*." },
+                    { value: 'c', text: "*Homo erectus*." },
+                    { value: 'd', text: "*Homo habilis*." }
                 ]
             },
             {
-                question: "¿Qué es la deforestación?",
-                answers: [
-                    { text: "La eliminación de bosques y selvas para otros usos, como la agricultura o la urbanización.", correct: true },
-                    { text: "La plantación de árboles en áreas deforestadas.", correct: false },
-                    { text: "La conservación de bosques y selvas.", correct: false },
-                    { text: "La restauración de bosques y selvas.", correct: false }
+                id: 'q17',
+                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
+                question: "¿Qué fósil se considera como uno de los primeros en mostrar evidencia de postura bípeda?",
+                options: [
+                    { value: 'a', text: "*Australopithecus afarensis*." },
+                    { value: 'b', text: "*Homo habilis*." },
+                    { value: 'c', text: "*Homo erectus*." },
+                    { value: 'd', text: "*Homo sapiens*." }
                 ]
             },
             {
-                question: "¿Qué es la acidificación del océano?",
-                answers: [
-                    { text: "La disminución del pH del océano debido a la absorción de dióxido de carbono de la atmósfera.", correct: true },
-                    { text: "La disminución del pH del océano debido a la actividad volcánica.", correct: false },
-                    { text: "La disminución del pH del océano debido a la actividad tectónica.", correct: false },
-                    { text: "La disminución del pH del océano debido a la actividad humana.", correct: false }
+                id: 'q18',
+                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
+                question: "¿Qué homínido es conocido por sus habilidades avanzadas en la fabricación de herramientas de piedra?",
+                options: [
+                    { value: 'a', text: "*Homo habilis*." },
+                    { value: 'b', text: "*Australopithecus africanus*." },
+                    { value: 'c', text: "*Homo erectus*." },
+                    { value: 'd', text: "*Homo sapiens*." }
                 ]
             },
             {
-                question: "¿Qué es un acuífero?",
-                answers: [
-                    { text: "Una capa de roca o sedimento que almacena y permite el flujo de agua subterránea.", correct: true },
-                    { text: "Una capa de roca o sedimento que no almacena ni permite el flujo de agua subterránea.", correct: false },
-                    { text: "Una capa de roca o sedimento que almacena pero no permite el flujo de agua subterránea.", correct: false },
-                    { text: "Una capa de roca o sedimento que no almacena pero permite el flujo de agua subterránea.", correct: false }
+                id: 'q19',
+                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
+                question: "¿Qué homínido se adaptó al clima frío y vivió en Europa y Asia?",
+                options: [
+                    { value: 'a', text: "*Homo neanderthalensis*." },
+                    { value: 'b', text: "*Homo erectus*." },
+                    { value: 'c', text: "*Homo habilis*." },
+                    { value: 'd', text: "*Australopithecus afarensis*." }
                 ]
             },
             {
-                question: "¿Qué es la sobrepesca?",
-                answers: [
-                    { text: "La captura de peces a un ritmo que supera la capacidad de las poblaciones de peces para recuperarse.", correct: true },
-                    { text: "La captura de peces a un ritmo que no supera la capacidad de las poblaciones de peces para recuperarse.", correct: false },
-                    { text: "La captura de peces a un ritmo que es igual a la capacidad de las poblaciones de peces para recuperarse.", correct: false },
-                    { text: "La captura de peces a un ritmo que es menor que la capacidad de las poblaciones de peces para recuperarse.", correct: false }
+                id: 'q20',
+                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
+                question: "¿Qué homínido comparte un ancestro común más cercano con *Homo sapiens*?",
+                options: [
+                    { value: 'a', text: "*Homo neanderthalensis*." },
+                    { value: 'b', text: "*Australopithecus afarensis*." },
+                    { value: 'c', text: "*Homo erectus*." },
+                    { value: 'd', text: "*Homo habilis*." }
+                ]
+            },
+            // Indicador 9.3
+            {
+                id: 'q21',
+                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
+                question: "¿Cuál es una ventaja evolutiva de la posición bípeda en los homínidos?",
+                options: [
+                    { value: 'a', text: "Liberación de las manos para usar herramientas." },
+                    { value: 'b', text: "Mejor visión en ambientes acuáticos." },
+                    { value: 'c', text: "Mayor velocidad al correr." },
+                    { value: 'd', text: "Capacidad de volar." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación del agua?",
-                answers: [
-                    { text: "La introducción de sustancias nocivas en cuerpos de agua, afectando la calidad del agua y la vida acuática.", correct: true },
-                    { text: "La introducción de sustancias beneficiosas en cuerpos de agua, mejorando la calidad del agua y la vida acuática.", correct: false },
-                    { text: "La eliminación de sustancias nocivas en cuerpos de agua, mejorando la calidad del agua y la vida acuática.", correct: false },
-                    { text: "La eliminación de sustancias beneficiosas en cuerpos de agua, afectando la calidad del agua y la vida acuática.", correct: false }
+                id: 'q22',
+                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
+                question: "¿Cómo contribuyó la posición bípeda a la evolución del cerebro humano?",
+                options: [
+                    { value: 'a', text: "Permitió una mejor refrigeración del cerebro, lo que facilitó su crecimiento." },
+                    { value: 'b', text: "Redujo la necesidad de un cerebro grande, lo que hizo más eficiente su funcionamiento." },
+                    { value: 'c', text: "Limitó el tamaño del cerebro debido a la postura erguida." },
+                    { value: 'd', text: "No tuvo ningún impacto en el desarrollo del cerebro." }
                 ]
             },
             {
-                question: "¿Qué es la contaminación del aire?",
-                answers: [
-                    { text: "La introducción de sustancias nocivas en la atmósfera, afectando la calidad del aire y la salud humana.", correct: true },
-                    { text: "La introducción de sustancias beneficiosas en la atmósfera, mejorando la calidad del aire y la salud humana.", correct: false },
-                    { text: "La eliminación de sustancias nocivas en la atmósfera, mejorando la calidad del aire y la salud humana.", correct: false },
-                    { text: "La eliminación de sustancias beneficiosas en la atmósfera, afectando la calidad del aire y la salud humana.", correct: false }
+                id: 'q23',
+                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
+                question: "¿Qué impacto tuvo el uso de herramientas en la evolución del ser humano?",
+                options: [
+                    { value: 'a', text: "Fomentó el desarrollo de habilidades cognitivas complejas." },
+                    { value: 'b', text: "Redució la necesidad de comunicación entre individuos." },
+                    { value: 'c', text: "Limito el uso de la posición bípeda." },
+                    { value: 'd', text: "No tuvo ningún impacto significativo." }
                 ]
             },
             {
-                question: "¿Qué es la capa de ozono?",
-                answers: [
-                    { text: "Una capa de la atmósfera rica en ozono que protege la Tierra de la radiación ultravioleta dañina.", correct: true },
-                    { text: "Una capa de la atmósfera rica en oxígeno que protege la Tierra de la radiación ultravioleta dañina.", correct: false },
-                    { text: "Una capa de la atmósfera rica en nitrógeno que protege la Tierra de la radiación ultravioleta dañina.", correct: false },
-                    { text: "Una capa de la atmósfera rica en dióxido de carbono que protege la Tierra de la radiación ultravioleta dañina.", correct: false }
+                id: 'q24',
+                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
+                question: "¿Cómo influenció la posición bípeda en la estructura esquelética de los homínidos?",
+                options: [
+                    { value: 'a', text: "Modificó la pelvis para soportar mejor el peso del cuerpo." },
+                    { value: 'b', text: "Hizo que los brazos se alargaran para mejorar el balance." },
+                    { value: 'c', text: "Redujo el tamaño de los pies para mejorar la movilidad." },
+                    { value: 'd', text: "Aumentó el tamaño del cráneo." }
                 ]
             },
             {
-                question: "¿Qué es el efecto invernadero?",
-                answers: [
-                    { text: "El calentamiento de la superficie de la Tierra debido a la acumulación de gases de efecto invernadero en la atmósfera.", correct: true },
-                    { text: "El enfriamiento de la superficie de la Tierra debido a la acumulación de gases de efecto invernadero en la atmósfera.", correct: false },
-                    { text: "El calentamiento de la superficie de la Tierra debido a la acumulación de aerosoles en la atmósfera.", correct: false },
-                    { text: "El enfriamiento de la superficie de la Tierra debido a la acumulación de aerosoles en la atmósfera.", correct: false }
+                id: 'q25',
+                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
+                question: "¿Cuál es una hipótesis sobre el desarrollo de la posición bípeda en los primeros homínidos?",
+                options: [
+                    { value: 'a', text: "Facilitó la recolección de alimentos en ambientes abiertos." },
+                    { value: 'b', text: "Mejoró la capacidad para trepar árboles." },
+                    { value: 'c', text: "Redujo la necesidad de utilizar herramientas." },
+                    { value: 'd', text: "Permitió nadar más rápido en ríos y lagos." }
                 ]
             },
             {
-                question: "¿Qué es el reciclaje?",
-                answers: [
-                    { text: "El proceso de convertir materiales desechados en nuevos productos para reducir el consumo de recursos y la contaminación.", correct: true },
-                    { text: "El proceso de eliminar materiales desechados en vertederos.", correct: false },
-                    { text: "El proceso de quemar materiales desechados para generar energía.", correct: false },
-                    { text: "El proceso de enterrar materiales desechados en el suelo.", correct: false }
+                id: 'q26',
+                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
+                question: "¿Cómo cambió la dieta de los primeros homínidos con el uso de herramientas?",
+                options: [
+                    { value: 'a', text: "Les permitió acceder a alimentos más duros y ricos en nutrientes." },
+                    { value: 'b', text: "Limitó su dieta a frutas y hojas blandas." },
+                    { value: 'c', text: "No tuvo ningún efecto en su dieta." },
+                    { value: 'd', text: "Redujo su capacidad para digerir proteínas." }
                 ]
             },
             {
-                question: "¿Qué es la energía renovable?",
-                answers: [
-                    { text: "La energía obtenida de recursos que se pueden reponer naturalmente en un corto período de tiempo, como el sol, el viento y el agua.", correct: true },
-                    { text: "La energía obtenida de recursos que no se pueden reponer naturalmente en un corto período de tiempo, como el petróleo, el carbón y el gas natural.", correct: false },
-                    { text: "La energía obtenida de la quema de materiales desechados.", correct: false },
-                    { text: "La energía obtenida de la descomposición de materiales orgánicos.", correct: false }
+                id: 'q27',
+                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
+                question: "¿Cómo afectó la postura bípeda al desarrollo social de los homínidos?",
+                options: [
+                    { value: 'a', text: "Facilitó la comunicación visual y el trabajo en equipo." },
+                    { value: 'b', text: "Redució la necesidad de comunicación entre individuos." },
+                    { value: 'c', text: "Limitó la capacidad para colaborar en grupos." },
+                    { value: 'd', text: "Fomentó la competencia en lugar de la cooperación." }
+                ]
+            },
+            {
+                id: 'q28',
+                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
+                question: "¿Qué relación tiene la posición bípeda con el desarrollo de herramientas más complejas?",
+                options: [
+                    { value: 'a', text: "Liberó las manos, lo que permitió fabricar y utilizar herramientas más avanzadas." },
+                    { value: 'b', text: "Hizo que las manos se volvieran más débiles, lo que limitó el desarrollo de herramientas." },
+                    { value: 'c', text: "No tuvo ninguna relación con el desarrollo de herramientas." },
+                    { value: 'd', text: "Dificultó el uso de herramientas debido a la necesidad de equilibrio." }
+                ]
+            },
+            {
+                id: 'q29',
+                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
+                question: "¿Cómo contribuyó la postura bípeda al éxito evolutivo de los humanos modernos?",
+                options: [
+                    { value: 'a', text: "Aumentó la capacidad para recorrer largas distancias en busca de recursos." },
+                    { value: 'b', text: "Limitó la movilidad y la capacidad para adaptarse a nuevos entornos." },
+                    { value: 'c', text: "Redujo la eficiencia en la caza y recolección." },
+                    { value: 'd', text: "No tuvo un impacto significativo en el éxito evolutivo." }
+                ]
+            },
+            {
+                id: 'q30',
+                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
+                question: "¿Qué papel desempeñó el trabajo en la evolución de la sociedad humana?",
+                options: [
+                    { value: 'a', text: "Facilitó la creación de estructuras sociales complejas y la cooperación entre individuos." },
+                    { value: 'b', text: "Redujo la necesidad de interacción social." },
+                    { value: 'c', text: "Limitó la capacidad de los humanos para formar grupos grandes." },
+                    { value: 'd', text: "No tuvo un impacto significativo en la evolución social." }
                 ]
             }
         ];
 
-        let attempt = 0;
-        const maxAttempts = 3;
+        const correctAnswerKeys = {
+            q1: 'a', q2: 'a', q3: 'a', q4: 'a', q5: 'a', q6: 'a', q7: 'a', q8: 'a', q9: 'a', q10: 'a',
+            q11: 'a', q12: 'a', q13: 'a', q14: 'a', q15: 'a', q16: 'a', q17: 'a', q18: 'a', q19: 'a', q20: 'a',
+            q21: 'a', q22: 'a', q23: 'a', q24: 'a', q25: 'a', q26: 'a', q27: 'a', q28: 'a', q29: 'a', q30: 'a'
+        };
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -313,80 +452,99 @@
             return array;
         }
 
-        function loadQuiz() {
-            const quizContainer = document.getElementById('quiz');
-            quizContainer.innerHTML = '';
-            quizData.forEach((data, index) => {
-                const questionContainer = document.createElement('div');
-                questionContainer.className = 'question';
+        function displayQuestions() {
+            const container = document.getElementById('questions-container');
+            const shuffledQuestions = shuffle([...questions]);
 
-                const questionTitle = document.createElement('h3');
-                questionTitle.innerText = `${index + 1}. ${data.question}`;
-                questionContainer.appendChild(questionTitle);
-
-                const optionsList = document.createElement('ul');
-                optionsList.className = 'options';
-
-                shuffle(data.answers).forEach(answer => {
-                    const option = document.createElement('li');
-                    const optionLabel = document.createElement('label');
-                    const optionInput = document.createElement('input');
-                    optionInput.type = 'radio';
-                    optionInput.name = `question${index}`;
-                    optionInput.value = answer.correct;
-                    optionLabel.appendChild(optionInput);
-                    optionLabel.appendChild(document.createTextNode(answer.text));
-                    option.appendChild(optionLabel);
-                    optionsList.appendChild(option);
-                });
-
-                questionContainer.appendChild(optionsList);
-                quizContainer.appendChild(questionContainer);
+            shuffledQuestions.forEach((q, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.classList.add('question');
+                questionElement.innerHTML = `
+                    <h3>${q.indicator}</h3>
+                    <p>${index + 1}. ${q.question}</p>
+                    ${q.options.map(option => `
+                        <input type="radio" name="${q.id}" value="${option.value}" required> ${option.value}) ${option.text}<br>
+                    `).join('')}
+                `;
+                container.appendChild(questionElement);
             });
         }
 
-        function submitQuiz() {
-            if (attempt >= maxAttempts) {
-                alert('Has alcanzado el número máximo de intentos.');
+        function startTimer() {
+            document.getElementById('timer').classList.remove('hidden');
+            startTime = new Date();
+            const timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                if (timeRemaining === 0) {
+                    clearInterval(timerInterval);
+                    showResults("Tiempo agotado. No se pudo completar la evaluación.", []);
+                }
+                timeRemaining--;
+            }, 1000);
+        }
+
+        document.getElementById('infoForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const nie = document.getElementById('nie').value;
+
+            if (!nieList.includes(nie)) {
+                alert("NIE no autorizado.");
                 return;
             }
 
-            const resultsContainer = document.getElementById('results');
-            const answers = document.querySelectorAll('input[type="radio"]:checked');
-            let score = 0;
+            document.getElementById('studentInfoForm').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            displayQuestions();
+            startTimer();
+        });
 
-            quizData.forEach((data, index) => {
-                const selected = answers[index] ? answers[index].value === 'true' : null;
-                if (selected === true) {
-                    score += 0.4; // Each correct answer is worth 0.4 points
+        document.getElementById('submitQuiz').addEventListener('click', function () {
+            let correctAnswers = 0;
+            let incorrectAnswers = [];
+
+            questions.forEach(q => {
+                const selectedAnswer = document.querySelector(`input[name="${q.id}"]:checked`);
+                if (selectedAnswer) {
+                    if (selectedAnswer.value === correctAnswerKeys[q.id]) {
+                        correctAnswers++;
+                    } else {
+                        incorrectAnswers.push(`Pregunta ${q.id.substring(1)} incorrecta.`);
+                    }
                 }
             });
 
-            score = Math.round(score * 10) / 10; // Round to one decimal place
-            let feedback = quizData.map((data, index) => {
-                const selected = answers[index] ? answers[index].value === 'true' : null;
-                let result;
-                if (selected === null) {
-                    result = "No contestada";
-                } else if (selected === true) {
-                    result = "Correcta";
-                } else {
-                    result = "Incorrecta";
-                }
-                return `<p>${index + 1}. ${result}</p>`;
-            }).join("");
+            const score = (correctAnswers / questions.length) * 10;
+            const endTime = new Date();
+            const timeTaken = Math.floor((endTime - startTime) / 1000); // Tiempo en segundos
 
-            resultsContainer.innerHTML = `<h3>Resultados:</h3><p>Puntaje: ${score} / 10</p>${feedback}`;
+            showResults(`Calificación: ${score.toFixed(2)} / 10`, incorrectAnswers, timeTaken);
+        });
 
-            attempt++;
-            if (attempt >= maxAttempts) {
-                alert('Has alcanzado el número máximo de intentos.');
-            }
+        function showResults(scoreText, incorrectAnswers, timeTaken) {
+            const date = new Date();
+            const minutesTaken = Math.floor(timeTaken / 60);
+            const secondsTaken = timeTaken % 60;
+
+            document.getElementById('quiz').classList.add('hidden');
+            document.getElementById('resultsModal').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+
+            document.getElementById('date').textContent = `Fecha: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+            document.getElementById('timeTaken').textContent = `Tiempo tomado: ${minutesTaken} minutos y ${secondsTaken} segundos`;
+            document.getElementById('unitEvaluated').textContent = `Unidad Evaluada: Unidad 9: La Tierra y el Ser Humano`;
+            document.getElementById('studentName').textContent = `Nombre del Estudiante: ${document.getElementById('name').value}`;
+            document.getElementById('studentNIE').textContent = `NIE: ${document.getElementById('nie').value}`;
+            document.getElementById('score').textContent = scoreText;
+            document.getElementById('incorrectAnswers').textContent = incorrectAnswers.join(', ');
         }
 
-        document.getElementById('submit').addEventListener('click', submitQuiz);
-
-        loadQuiz();
+        document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('resultsModal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        });
     </script>
 </body>
 </html>
