@@ -7,442 +7,479 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
         }
+        h1 {
+            color: #333;
+        }
+        .quiz-container {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+            display: none;
+        }
+        .indicator {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+        }
+        .input-field {
+            margin-bottom: 10px;
+        }
+        .input-field label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-field input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Cronómetro flotante */
         #timer {
             position: fixed;
             top: 10px;
             right: 10px;
-            background-color: #f2f2f2;
-            border: 1px solid #ccc;
             padding: 10px;
+            background-color: green;
+            color: white;
             font-size: 18px;
             border-radius: 5px;
         }
-        .hidden {
-            display: none;
+        /* Estilo para los números de preguntas incorrectas */
+        .incorrect-answers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .question {
-            margin-bottom: 20px;
-        }
-        .question h3 {
-            margin-bottom: 10px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        #resultsModal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
-        #overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 500;
+        .incorrect-answers div {
+            width: 18%;
+            text-align: center;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 5px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <div id="timer" class="hidden">Tiempo restante: <span id="time">30:00</span></div>
+    <h1>Evaluación Unidad 9: La Tierra y el Ser Humano</h1>
+    <div class="quiz-container">
+        <div id="quiz"></div>
+        <button id="submit">Enviar respuestas</button>
+    </div>
+    <footer>
+        &copy; Derechos Reservados Prof. Alberto Sanchez
+    </footer>
 
-    <div class="container">
-        <div id="studentInfoForm">
-            <h2>Información del Estudiante</h2>
-            <form id="infoForm">
-                <label for="name">Nombre del Estudiante:</label>
-                <input type="text" id="name" required><br><br>
+    <!-- Modal para solicitar nombre y NIE -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <h2>Por favor, ingresa tus datos</h2>
+            <div class="input-field">
+                <label for="fullname">Nombre completo:</label>
+                <input type="text" id="fullname" required>
+            </div>
+            <div class="input-field">
                 <label for="nie">NIE:</label>
-                <input type="text" id="nie" required><br><br>
-                <label for="unit">Unidad Evaluada:</label>
-                <input type="text" id="unit" value="Unidad 9: La Tierra y el Ser Humano" readonly><br><br>
-                <button type="submit">Iniciar Evaluación</button>
-            </form>
+                <input type="text" id="nie" required>
+            </div>
+            <button id="startQuiz">Comenzar Evaluación</button>
         </div>
-
-        <div id="quiz" class="hidden">
-            <h2>Evaluación Unidad 9: La Tierra y el Ser Humano</h2>
-
-            <div id="questions-container"></div>
-
-            <button id="submitQuiz">OBTENER CALIFICACIÓN</button>
-        </div>
-
-        <div id="resultsModal">
-            <h2>Resultados</h2>
-            <p id="date"></p>
-            <p id="timeTaken"></p>
-            <p id="unitEvaluated"></p>
-            <p id="studentName"></p>
-            <p id="studentNIE"></p>
-            <p id="score"></p>
-            <p id="incorrectAnswers"></p>
-            <button id="closeModal">Cerrar</button>
-        </div>
-
-        <div id="overlay"></div>
     </div>
 
-    <script>
-        const nieList = ["4267837", "3850952", "3851018", "5032035", "19806181", "6297536", "2608724", "6262810", "4267838", "20162435", "3850923", "19806209", "4267828", "3850942"];
-        const maxTime = 30 * 60; // 30 minutos en segundos
-        let timeRemaining = maxTime;
-        const timerElement = document.getElementById('time');
-        let startTime;
+    <!-- Modal de resultados -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Resultados de la Evaluación</h2>
+            <p id="modalName"></p>
+            <p id="modalNIE"></p>
+            <h3>Preguntas incorrectas:</h3>
+            <div id="modalIncorrectAnswers" class="incorrect-answers"></div>
+            <h3>Detalles:</h3>
+            <p id="modalDetails"></p>
+            <h3>Intentos de manipulación detectados:</h3>
+            <p id="manipulationCount"></p>
+            <h3>Reintentos:</h3>
+            <p id="attemptCount"></p>
+        </div>
+    </div>
 
-        const questions = [
-            // Indicador 9.1
+    <div id="timer">30:00</div>
+
+    <script>
+        const authorizedNIEs = [
+            "4267837", "3850952", "3851018", "5032035", "19806181", "6297536", 
+            "2608724", "6262810", "4267838", "20162435", "3850923", "19806209", 
+            "4267828", "3850942"
+        ];
+
+        const quizData = [
             {
-                id: 'q1',
-                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
-                question: "¿Cuál es la era geológica en la que se formaron las primeras formas de vida en la Tierra?",
-                options: [
-                    { value: 'a', text: "Precámbrico." },
-                    { value: 'b', text: "Paleozoico." },
-                    { value: 'c', text: "Mesozoico." },
-                    { value: 'd', text: "Cenozoico." }
+                indicator: "Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.",
+                questions: [
+                    {
+                        question: "¿Cuál es la principal característica de la era Precámbrica?",
+                        answers: [
+                            { text: "El desarrollo de formas de vida unicelulares.", correct: true },
+                            { text: "La aparición de los primeros reptiles.", correct: false },
+                            { text: "La formación de los océanos.", correct: false },
+                            { text: "La separación de los continentes.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál fue el evento geológico más importante durante el Paleozoico?",
+                        answers: [
+                            { text: "La explosión cámbrica que dio lugar a una gran diversidad de vida.", correct: true },
+                            { text: "La separación de Pangea.", correct: false },
+                            { text: "La extinción masiva del Permiano.", correct: false },
+                            { text: "La formación de las primeras montañas.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué evento importante sucedió al final del periodo Precámbrico?",
+                        answers: [
+                            { text: "El surgimiento de organismos multicelulares.", correct: true },
+                            { text: "La primera glaciación global.", correct: false },
+                            { text: "La aparición de los primeros insectos.", correct: false },
+                            { text: "La formación de las primeras montañas.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué evento marca el final del Mesozoico y el inicio del Cenozoico?",
+                        answers: [
+                            { text: "La extinción masiva de los dinosaurios.", correct: true },
+                            { text: "La aparición de los primeros mamíferos.", correct: false },
+                            { text: "La formación de los primeros continentes.", correct: false },
+                            { text: "La gran explosión volcánica.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué tipo de vida era dominante durante el Precámbrico?",
+                        answers: [
+                            { text: "Organismos unicelulares.", correct: true },
+                            { text: "Mamíferos.", correct: false },
+                            { text: "Reptiles.", correct: false },
+                            { text: "Aves.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué característica define la era Cenozoica?",
+                        answers: [
+                            { text: "El predominio de los mamíferos.", correct: true },
+                            { text: "La aparición de los primeros anfibios.", correct: false },
+                            { text: "La formación de la capa de ozono.", correct: false },
+                            { text: "El desarrollo de la vida en los océanos.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es la importancia de la era Mesozoica en la historia de la Tierra?",
+                        answers: [
+                            { text: "Fue la era de los grandes reptiles, incluyendo a los dinosaurios.", correct: true },
+                            { text: "Fue cuando aparecieron los primeros mamíferos.", correct: false },
+                            { text: "Es la era más reciente en la historia de la Tierra.", correct: false },
+                            { text: "Marcó el fin de la vida en los océanos.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿En qué era geológica ocurrió la explosión cámbrica?",
+                        answers: [
+                            { text: "Paleozoico.", correct: true },
+                            { text: "Precámbrico.", correct: false },
+                            { text: "Mesozoico.", correct: false },
+                            { text: "Cenozoico.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es la era geológica en la que se formaron las primeras formas de vida en la Tierra?",
+                        answers: [
+                            { text: "Precámbrico.", correct: true },
+                            { text: "Paleozoico.", correct: false },
+                            { text: "Mesozoico.", correct: false },
+                            { text: "Cenozoico.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q2',
-                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
-                question: "¿Qué evento marca el final del Mesozoico y el inicio del Cenozoico?",
-                options: [
-                    { value: 'a', text: "La extinción masiva de los dinosaurios." },
-                    { value: 'b', text: "La aparición de los primeros mamíferos." },
-                    { value: 'c', text: "La formación de los primeros continentes." },
-                    { value: 'd', text: "La gran explosión volcánica." }
+                indicator: "Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de Homo sapiens.",
+                questions: [
+                    {
+                        question: "¿Cuál de los siguientes es considerado el primer homínido en utilizar herramientas de piedra?",
+                        answers: [
+                            { text: "Homo habilis.", correct: true },
+                            { text: "Australopithecus afarensis.", correct: false },
+                            { text: "Homo erectus.", correct: false },
+                            { text: "Homo neanderthalensis.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál de los siguientes homínidos tenía el cerebro más grande en relación con su tamaño corporal?",
+                        answers: [
+                            { text: "Homo neanderthalensis.", correct: true },
+                            { text: "Australopithecus afarensis.", correct: false },
+                            { text: "Homo erectus.", correct: false },
+                            { text: "Homo habilis.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué homínido se adaptó al clima frío y vivió en Europa y Asia?",
+                        answers: [
+                            { text: "Homo neanderthalensis.", correct: true },
+                            { text: "Homo erectus.", correct: false },
+                            { text: "Homo habilis.", correct: false },
+                            { text: "Australopithecus afarensis.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué homínido comparte un ancestro común más cercano con Homo sapiens?",
+                        answers: [
+                            { text: "Homo neanderthalensis.", correct: true },
+                            { text: "Australopithecus afarensis.", correct: false },
+                            { text: "Homo erectus.", correct: false },
+                            { text: "Homo habilis.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué fósil se considera como uno de los primeros en mostrar evidencia de postura bípeda?",
+                        answers: [
+                            { text: "Australopithecus afarensis.", correct: true },
+                            { text: "Homo habilis.", correct: false },
+                            { text: "Homo erectus.", correct: false },
+                            { text: "Homo sapiens.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué homínido se caracteriza por ser el primero en salir de África?",
+                        answers: [
+                            { text: "Homo erectus.", correct: true },
+                            { text: "Homo habilis.", correct: false },
+                            { text: "Homo neanderthalensis.", correct: false },
+                            { text: "Australopithecus afarensis.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué homínido es conocido por sus habilidades avanzadas en la fabricación de herramientas de piedra?",
+                        answers: [
+                            { text: "Homo habilis.", correct: true },
+                            { text: "Australopithecus africanus.", correct: false },
+                            { text: "Homo erectus.", correct: false },
+                            { text: "Homo sapiens.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es la principal característica que diferencia a Homo sapiens de otros homínidos?",
+                        answers: [
+                            { text: "La capacidad avanzada para el lenguaje y la comunicación.", correct: true },
+                            { text: "El uso de herramientas.", correct: false },
+                            { text: "La postura bípeda.", correct: false },
+                            { text: "La vida en grupos sociales.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es una característica distintiva de Homo erectus?",
+                        answers: [
+                            { text: "Era capaz de controlar el fuego.", correct: true },
+                            { text: "Vivía principalmente en los árboles.", correct: false },
+                            { text: "Era el más pequeño de los homínidos.", correct: false },
+                            { text: "Tenía un cerebro más pequeño que Australopithecus.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es el principal rasgo que diferencia a los homínidos de otros primates?",
+                        answers: [
+                            { text: "La capacidad de caminar en posición bípeda.", correct: true },
+                            { text: "El tamaño del cerebro.", correct: false },
+                            { text: "El uso de herramientas.", correct: false },
+                            { text: "La dieta omnívora.", correct: false }
+                        ]
+                    }
                 ]
             },
             {
-                id: 'q3',
-                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
-                question: "¿En qué era geológica se desarrollaron los dinosaurios?",
-                options: [
-                    { value: 'a', text: "Mesozoico." },
-                    { value: 'b', text: "Paleozoico." },
-                    { value: 'c', text: "Cenozoico." },
-                    { value: 'd', text: "Precámbrico." }
-                ]
-            },
-            {
-                id: 'q4',
-                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
-                question: "¿Cuál es la principal característica de la era Precámbrica?",
-                options: [
-                    { value: 'a', text: "El desarrollo de formas de vida unicelulares." },
-                    { value: 'b', text: "La aparición de los primeros reptiles." },
-                    { value: 'c', text: "La formación de los océanos." },
-                    { value: 'd', text: "La separación de los continentes." }
-                ]
-            },
-            {
-                id: 'q5',
-                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
-                question: "¿Cuál fue el evento geológico más importante durante el Paleozoico?",
-                options: [
-                    { value: 'a', text: "La explosión cámbrica que dio lugar a una gran diversidad de vida." },
-                    { value: 'b', text: "La separación de Pangea." },
-                    { value: 'c', text: "La extinción masiva del Permiano." },
-                    { value: 'd', text: "La formación de las primeras montañas." }
-                ]
-            },
-            {
-                id: 'q6',
-                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
-                question: "¿Qué característica define la era Cenozoica?",
-                options: [
-                    { value: 'a', text: "El predominio de los mamíferos." },
-                    { value: 'b', text: "La aparición de los primeros anfibios." },
-                    { value: 'c', text: "La formación de la capa de ozono." },
-                    { value: 'd', text: "El desarrollo de la vida en los océanos." }
-                ]
-            },
-            {
-                id: 'q7',
-                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
-                question: "¿En qué era geológica ocurrió la explosión cámbrica?",
-                options: [
-                    { value: 'a', text: "Paleozoico." },
-                    { value: 'b', text: "Precámbrico." },
-                    { value: 'c', text: "Mesozoico." },
-                    { value: 'd', text: "Cenozoico." }
-                ]
-            },
-            {
-                id: 'q8',
-                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
-                question: "¿Qué evento importante sucedió al final del periodo Precámbrico?",
-                options: [
-                    { value: 'a', text: "El surgimiento de organismos multicelulares." },
-                    { value: 'b', text: "La primera glaciación global." },
-                    { value: 'c', text: "La aparición de los primeros insectos." },
-                    { value: 'd', text: "La formación de las primeras montañas." }
-                ]
-            },
-            {
-                id: 'q9',
-                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
-                question: "¿Cuál es la importancia de la era Mesozoica en la historia de la Tierra?",
-                options: [
-                    { value: 'a', text: "Fue la era de los grandes reptiles, incluyendo a los dinosaurios." },
-                    { value: 'b', text: "Fue cuando aparecieron los primeros mamíferos." },
-                    { value: 'c', text: "Es la era más reciente en la historia de la Tierra." },
-                    { value: 'd', text: "Marcó el fin de la vida en los océanos." }
-                ]
-            },
-            {
-                id: 'q10',
-                indicator: 'Indicador 9.1: Indaga, representa y describe con interés el origen y la evolución de la Tierra y las características de las diferentes eras geológicas del planeta.',
-                question: "¿Qué tipo de vida era dominante durante el Precámbrico?",
-                options: [
-                    { value: 'a', text: "Organismos unicelulares." },
-                    { value: 'b', text: "Mamíferos." },
-                    { value: 'c', text: "Reptiles." },
-                    { value: 'd', text: "Aves." }
-                ]
-            },
-            // Indicador 9.2
-            {
-                id: 'q11',
-                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
-                question: "¿Cuál es el principal rasgo que diferencia a los homínidos de otros primates?",
-                options: [
-                    { value: 'a', text: "La capacidad de caminar en posición bípeda." },
-                    { value: 'b', text: "El tamaño del cerebro." },
-                    { value: 'c', text: "El uso de herramientas." },
-                    { value: 'd', text: "La dieta omnívora." }
-                ]
-            },
-            {
-                id: 'q12',
-                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
-                question: "¿Cuál de los siguientes es considerado el primer homínido en utilizar herramientas de piedra?",
-                options: [
-                    { value: 'a', text: "*Homo habilis*." },
-                    { value: 'b', text: "*Australopithecus afarensis*." },
-                    { value: 'c', text: "*Homo erectus*." },
-                    { value: 'd', text: "*Homo neanderthalensis*." }
-                ]
-            },
-            {
-                id: 'q13',
-                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
-                question: "¿Cuál es una característica distintiva de *Homo erectus*?",
-                options: [
-                    { value: 'a', text: "Era capaz de controlar el fuego." },
-                    { value: 'b', text: "Vivía principalmente en los árboles." },
-                    { value: 'c', text: "Era el más pequeño de los homínidos." },
-                    { value: 'd', text: "Tenía un cerebro más pequeño que *Australopithecus*." }
-                ]
-            },
-            {
-                id: 'q14',
-                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
-                question: "¿Qué homínido se caracteriza por ser el primero en salir de África?",
-                options: [
-                    { value: 'a', text: "*Homo erectus*." },
-                    { value: 'b', text: "*Homo habilis*." },
-                    { value: 'c', text: "*Homo neanderthalensis*." },
-                    { value: 'd', text: "*Australopithecus afarensis*." }
-                ]
-            },
-            {
-                id: 'q15',
-                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
-                question: "¿Cuál es la principal característica que diferencia a *Homo sapiens* de otros homínidos?",
-                options: [
-                    { value: 'a', text: "La capacidad avanzada para el lenguaje y la comunicación." },
-                    { value: 'b', text: "El uso de herramientas." },
-                    { value: 'c', text: "La postura bípeda." },
-                    { value: 'd', text: "La vida en grupos sociales." }
-                ]
-            },
-            {
-                id: 'q16',
-                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
-                question: "¿Cuál de los siguientes homínidos tenía el cerebro más grande en relación con su tamaño corporal?",
-                options: [
-                    { value: 'a', text: "*Homo neanderthalensis*." },
-                    { value: 'b', text: "*Australopithecus afarensis*." },
-                    { value: 'c', text: "*Homo erectus*." },
-                    { value: 'd', text: "*Homo habilis*." }
-                ]
-            },
-            {
-                id: 'q17',
-                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
-                question: "¿Qué fósil se considera como uno de los primeros en mostrar evidencia de postura bípeda?",
-                options: [
-                    { value: 'a', text: "*Australopithecus afarensis*." },
-                    { value: 'b', text: "*Homo habilis*." },
-                    { value: 'c', text: "*Homo erectus*." },
-                    { value: 'd', text: "*Homo sapiens*." }
-                ]
-            },
-            {
-                id: 'q18',
-                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
-                question: "¿Qué homínido es conocido por sus habilidades avanzadas en la fabricación de herramientas de piedra?",
-                options: [
-                    { value: 'a', text: "*Homo habilis*." },
-                    { value: 'b', text: "*Australopithecus africanus*." },
-                    { value: 'c', text: "*Homo erectus*." },
-                    { value: 'd', text: "*Homo sapiens*." }
-                ]
-            },
-            {
-                id: 'q19',
-                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
-                question: "¿Qué homínido se adaptó al clima frío y vivió en Europa y Asia?",
-                options: [
-                    { value: 'a', text: "*Homo neanderthalensis*." },
-                    { value: 'b', text: "*Homo erectus*." },
-                    { value: 'c', text: "*Homo habilis*." },
-                    { value: 'd', text: "*Australopithecus afarensis*." }
-                ]
-            },
-            {
-                id: 'q20',
-                indicator: 'Indicador 9.2: Indaga, representa y describe con interés las características de los distintos primates fósiles y homínidos fósiles y de *Homo sapiens*.',
-                question: "¿Qué homínido comparte un ancestro común más cercano con *Homo sapiens*?",
-                options: [
-                    { value: 'a', text: "*Homo neanderthalensis*." },
-                    { value: 'b', text: "*Australopithecus afarensis*." },
-                    { value: 'c', text: "*Homo erectus*." },
-                    { value: 'd', text: "*Homo habilis*." }
-                ]
-            },
-            // Indicador 9.3
-            {
-                id: 'q21',
-                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
-                question: "¿Cuál es una ventaja evolutiva de la posición bípeda en los homínidos?",
-                options: [
-                    { value: 'a', text: "Liberación de las manos para usar herramientas." },
-                    { value: 'b', text: "Mejor visión en ambientes acuáticos." },
-                    { value: 'c', text: "Mayor velocidad al correr." },
-                    { value: 'd', text: "Capacidad de volar." }
-                ]
-            },
-            {
-                id: 'q22',
-                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
-                question: "¿Cómo contribuyó la posición bípeda a la evolución del cerebro humano?",
-                options: [
-                    { value: 'a', text: "Permitió una mejor refrigeración del cerebro, lo que facilitó su crecimiento." },
-                    { value: 'b', text: "Redujo la necesidad de un cerebro grande, lo que hizo más eficiente su funcionamiento." },
-                    { value: 'c', text: "Limitó el tamaño del cerebro debido a la postura erguida." },
-                    { value: 'd', text: "No tuvo ningún impacto en el desarrollo del cerebro." }
-                ]
-            },
-            {
-                id: 'q23',
-                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
-                question: "¿Qué impacto tuvo el uso de herramientas en la evolución del ser humano?",
-                options: [
-                    { value: 'a', text: "Fomentó el desarrollo de habilidades cognitivas complejas." },
-                    { value: 'b', text: "Redució la necesidad de comunicación entre individuos." },
-                    { value: 'c', text: "Limito el uso de la posición bípeda." },
-                    { value: 'd', text: "No tuvo ningún impacto significativo." }
-                ]
-            },
-            {
-                id: 'q24',
-                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
-                question: "¿Cómo influenció la posición bípeda en la estructura esquelética de los homínidos?",
-                options: [
-                    { value: 'a', text: "Modificó la pelvis para soportar mejor el peso del cuerpo." },
-                    { value: 'b', text: "Hizo que los brazos se alargaran para mejorar el balance." },
-                    { value: 'c', text: "Redujo el tamaño de los pies para mejorar la movilidad." },
-                    { value: 'd', text: "Aumentó el tamaño del cráneo." }
-                ]
-            },
-            {
-                id: 'q25',
-                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
-                question: "¿Cuál es una hipótesis sobre el desarrollo de la posición bípeda en los primeros homínidos?",
-                options: [
-                    { value: 'a', text: "Facilitó la recolección de alimentos en ambientes abiertos." },
-                    { value: 'b', text: "Mejoró la capacidad para trepar árboles." },
-                    { value: 'c', text: "Redujo la necesidad de utilizar herramientas." },
-                    { value: 'd', text: "Permitió nadar más rápido en ríos y lagos." }
-                ]
-            },
-            {
-                id: 'q26',
-                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
-                question: "¿Cómo cambió la dieta de los primeros homínidos con el uso de herramientas?",
-                options: [
-                    { value: 'a', text: "Les permitió acceder a alimentos más duros y ricos en nutrientes." },
-                    { value: 'b', text: "Limitó su dieta a frutas y hojas blandas." },
-                    { value: 'c', text: "No tuvo ningún efecto en su dieta." },
-                    { value: 'd', text: "Redujo su capacidad para digerir proteínas." }
-                ]
-            },
-            {
-                id: 'q27',
-                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
-                question: "¿Cómo afectó la postura bípeda al desarrollo social de los homínidos?",
-                options: [
-                    { value: 'a', text: "Facilitó la comunicación visual y el trabajo en equipo." },
-                    { value: 'b', text: "Redució la necesidad de comunicación entre individuos." },
-                    { value: 'c', text: "Limitó la capacidad para colaborar en grupos." },
-                    { value: 'd', text: "Fomentó la competencia en lugar de la cooperación." }
-                ]
-            },
-            {
-                id: 'q28',
-                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
-                question: "¿Qué relación tiene la posición bípeda con el desarrollo de herramientas más complejas?",
-                options: [
-                    { value: 'a', text: "Liberó las manos, lo que permitió fabricar y utilizar herramientas más avanzadas." },
-                    { value: 'b', text: "Hizo que las manos se volvieran más débiles, lo que limitó el desarrollo de herramientas." },
-                    { value: 'c', text: "No tuvo ninguna relación con el desarrollo de herramientas." },
-                    { value: 'd', text: "Dificultó el uso de herramientas debido a la necesidad de equilibrio." }
-                ]
-            },
-            {
-                id: 'q29',
-                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
-                question: "¿Cómo contribuyó la postura bípeda al éxito evolutivo de los humanos modernos?",
-                options: [
-                    { value: 'a', text: "Aumentó la capacidad para recorrer largas distancias en busca de recursos." },
-                    { value: 'b', text: "Limitó la movilidad y la capacidad para adaptarse a nuevos entornos." },
-                    { value: 'c', text: "Redujo la eficiencia en la caza y recolección." },
-                    { value: 'd', text: "No tuvo un impacto significativo en el éxito evolutivo." }
-                ]
-            },
-            {
-                id: 'q30',
-                indicator: 'Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.',
-                question: "¿Qué papel desempeñó el trabajo en la evolución de la sociedad humana?",
-                options: [
-                    { value: 'a', text: "Facilitó la creación de estructuras sociales complejas y la cooperación entre individuos." },
-                    { value: 'b', text: "Redujo la necesidad de interacción social." },
-                    { value: 'c', text: "Limitó la capacidad de los humanos para formar grupos grandes." },
-                    { value: 'd', text: "No tuvo un impacto significativo en la evolución social." }
+                indicator: "Indicador 9.3: Analiza y explica con interés la importancia de la posición bípeda y la actividad del trabajo en la evolución del ser humano.",
+                questions: [
+                    {
+                        question: "¿Qué papel desempeñó el trabajo en la evolución de la sociedad humana?",
+                        answers: [
+                            { text: "Facilitó la creación de estructuras sociales complejas y la cooperación entre individuos.", correct: true },
+                            { text: "Redujo la necesidad de interacción social.", correct: false },
+                            { text: "Limitó la capacidad de los humanos para formar grupos grandes.", correct: false },
+                            { text: "No tuvo un impacto significativo en la evolución social.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué relación tiene la posición bípeda con el desarrollo de herramientas más complejas?",
+                        answers: [
+                            { text: "Liberó las manos, lo que permitió fabricar y utilizar herramientas más avanzadas.", correct: true },
+                            { text: "Hizo que las manos se volvieran más débiles, lo que limitó el desarrollo de herramientas.", correct: false },
+                            { text: "No tuvo ninguna relación con el desarrollo de herramientas.", correct: false },
+                            { text: "Dificultó el uso de herramientas debido a la necesidad de equilibrio.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cómo contribuyó la posición bípeda a la evolución del cerebro humano?",
+                        answers: [
+                            { text: "Permitió una mejor refrigeración del cerebro, lo que facilitó su crecimiento.", correct: true },
+                            { text: "Redujo la necesidad de un cerebro grande, lo que hizo más eficiente su funcionamiento.", correct: false },
+                            { text: "Limitó el tamaño del cerebro debido a la postura erguida.", correct: false },
+                            { text: "No tuvo ningún impacto en el desarrollo del cerebro.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cómo afectó la postura bípeda al desarrollo social de los homínidos?",
+                        answers: [
+                            { text: "Facilitó la comunicación visual y el trabajo en equipo.", correct: true },
+                            { text: "Redujo la necesidad de comunicación entre individuos.", correct: false },
+                            { text: "Limitó la capacidad para colaborar en grupos.", correct: false },
+                            { text: "Fomentó la competencia en lugar de la cooperación.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es una ventaja evolutiva de la posición bípeda en los homínidos?",
+                        answers: [
+                            { text: "Liberación de las manos para usar herramientas.", correct: true },
+                            { text: "Mejor visión en ambientes acuáticos.", correct: false },
+                            { text: "Mayor velocidad al correr.", correct: false },
+                            { text: "Capacidad de volar.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Qué impacto tuvo el uso de herramientas en la evolución del ser humano?",
+                        answers: [
+                            { text: "Fomentó el desarrollo de habilidades cognitivas complejas.", correct: true },
+                            { text: "Redujo la necesidad de comunicación entre individuos.", correct: false },
+                            { text: "Limitó el uso de la posición bípeda.", correct: false },
+                            { text: "No tuvo ningún impacto significativo.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cuál es una hipótesis sobre el desarrollo de la posición bípeda en los primeros homínidos?",
+                        answers: [
+                            { text: "Facilitó la recolección de alimentos en ambientes abiertos.", correct: true },
+                            { text: "Mejoró la capacidad para trepar árboles.", correct: false },
+                            { text: "Redujo la necesidad de utilizar herramientas.", correct: false },
+                            { text: "Permitió nadar más rápido en ríos y lagos.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cómo cambió la dieta de los primeros homínidos con el uso de herramientas?",
+                        answers: [
+                            { text: "Les permitió acceder a alimentos más duros y ricos en nutrientes.", correct: true },
+                            { text: "Limitó su dieta a frutas y hojas blandas.", correct: false },
+                            { text: "No tuvo ningún efecto en su dieta.", correct: false },
+                            { text: "Redujo su capacidad para digerir proteínas.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cómo influenció la posición bípeda en la estructura esquelética de los homínidos?",
+                        answers: [
+                            { text: "Modificó la pelvis para soportar mejor el peso del cuerpo.", correct: true },
+                            { text: "Hizo que los brazos se alargaran para mejorar el balance.", correct: false },
+                            { text: "Redujo el tamaño de los pies para mejorar la movilidad.", correct: false },
+                            { text: "Aumentó el tamaño del cráneo.", correct: false }
+                        ]
+                    },
+                    {
+                        question: "¿Cómo contribuyó la postura bípeda al éxito evolutivo de los humanos modernos?",
+                        answers: [
+                            { text: "Aumentó la capacidad para recorrer largas distancias en busca de recursos.", correct: true },
+                            { text: "Limitó la movilidad y la capacidad para adaptarse a nuevos entornos.", correct: false },
+                            { text: "Redujo la eficiencia en la caza y recolección.", correct: false },
+                            { text: "No tuvo un impacto significativo en el éxito evolutivo.", correct: false }
+                        ]
+                    }
                 ]
             }
         ];
 
-        const correctAnswerKeys = {
-            q1: 'a', q2: 'a', q3: 'a', q4: 'a', q5: 'a', q6: 'a', q7: 'a', q8: 'a', q9: 'a', q10: 'a',
-            q11: 'a', q12: 'a', q13: 'a', q14: 'a', q15: 'a', q16: 'a', q17: 'a', q18: 'a', q19: 'a', q20: 'a',
-            q21: 'a', q22: 'a', q23: 'a', q24: 'a', q25: 'a', q26: 'a', q27: 'a', q28: 'a', q29: 'a', q30: 'a'
-        };
+        let attempt = 0;
+        const maxAttempts = 2;
+        const evaluationName = "Evaluación Unidad 9: La Tierra y el Ser Humano";
+        let timer;
+        let timeLeft = 1800; // 30 minutos en segundos
+        let startTime;
+        let manipulationCount = 0;
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -452,99 +489,198 @@
             return array;
         }
 
-        function displayQuestions() {
-            const container = document.getElementById('questions-container');
-            const shuffledQuestions = shuffle([...questions]);
+        function loadQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            quizContainer.innerHTML = '';
 
-            shuffledQuestions.forEach((q, index) => {
-                const questionElement = document.createElement('div');
-                questionElement.classList.add('question');
-                questionElement.innerHTML = `
-                    <h3>${q.indicator}</h3>
-                    <p>${index + 1}. ${q.question}</p>
-                    ${q.options.map(option => `
-                        <input type="radio" name="${q.id}" value="${option.value}" required> ${option.value}) ${option.text}<br>
-                    `).join('')}
-                `;
-                container.appendChild(questionElement);
+            quizData.forEach(section => {
+                const indicatorContainer = document.createElement('div');
+                indicatorContainer.className = 'indicator';
+                indicatorContainer.innerText = section.indicator;
+                quizContainer.appendChild(indicatorContainer);
+
+                shuffle(section.questions).forEach((data, index) => {
+                    const questionContainer = document.createElement('div');
+                    questionContainer.className = 'question';
+
+                    const questionTitle = document.createElement('h3');
+                    questionTitle.innerText = `${index + 1}. ${data.question}`;
+                    questionContainer.appendChild(questionTitle);
+
+                    const optionsList = document.createElement('ul');
+                    optionsList.className = 'options';
+
+                    shuffle(data.answers).forEach(answer => {
+                        const option = document.createElement('li');
+                        const optionLabel = document.createElement('label');
+                        const optionInput = document.createElement('input');
+                        optionInput.type = 'radio';
+                        optionInput.name = `question${section.indicator}${index}`;
+                        optionInput.value = answer.correct;
+                        optionLabel.appendChild(optionInput);
+                        optionLabel.appendChild(document.createTextNode(answer.text));
+                        option.appendChild(optionLabel);
+                        optionsList.appendChild(option);
+                    });
+
+                    questionContainer.appendChild(optionsList);
+                    quizContainer.appendChild(questionContainer);
+                });
             });
         }
 
-        function startTimer() {
-            document.getElementById('timer').classList.remove('hidden');
-            startTime = new Date();
-            const timerInterval = setInterval(() => {
-                const minutes = Math.floor(timeRemaining / 60);
-                const seconds = timeRemaining % 60;
-                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                if (timeRemaining === 0) {
-                    clearInterval(timerInterval);
-                    showResults("Tiempo agotado. No se pudo completar la evaluación.", []);
-                }
-                timeRemaining--;
-            }, 1000);
-        }
+        function submitQuiz() {
+            const fullname = document.getElementById('fullname').value.trim();
+            const nie = document.getElementById('nie').value.trim();
 
-        document.getElementById('infoForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const name = document.getElementById('name').value;
-            const nie = document.getElementById('nie').value;
-
-            if (!nieList.includes(nie)) {
-                alert("NIE no autorizado.");
+            if (!fullname || !nie) {
+                alert('Por favor, ingresa tu nombre completo y NIE.');
                 return;
             }
 
-            document.getElementById('studentInfoForm').classList.add('hidden');
-            document.getElementById('quiz').classList.remove('hidden');
-            displayQuestions();
-            startTimer();
-        });
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+                return;
+            }
 
-        document.getElementById('submitQuiz').addEventListener('click', function () {
-            let correctAnswers = 0;
+            const answers = document.querySelectorAll('input[type="radio"]:checked');
             let incorrectAnswers = [];
+            let questionCount = 0;
 
-            questions.forEach(q => {
-                const selectedAnswer = document.querySelector(`input[name="${q.id}"]:checked`);
-                if (selectedAnswer) {
-                    if (selectedAnswer.value === correctAnswerKeys[q.id]) {
-                        correctAnswers++;
-                    } else {
-                        incorrectAnswers.push(`Pregunta ${q.id.substring(1)} incorrecta.`);
+            quizData.forEach(section => {
+                section.questions.forEach((data, index) => {
+                    const selected = answers[questionCount] ? answers[questionCount].value === 'true' : null;
+                    if (selected === false || selected === null) {
+                        incorrectAnswers.push(`Pregunta ${questionCount + 1} del ${section.indicator}`);
                     }
-                }
+                    questionCount++;
+                });
             });
 
-            const score = (correctAnswers / questions.length) * 10;
+            // Mostrar los resultados en el modal
+            document.getElementById('modalName').innerText = `Nombre: ${fullname}`;
+            document.getElementById('modalNIE').innerText = `NIE: ${nie}`;
+            const modalIncorrectAnswers = document.getElementById('modalIncorrectAnswers');
+            modalIncorrectAnswers.innerHTML = '';
+            incorrectAnswers.forEach((questionNumber) => {
+                const div = document.createElement('div');
+                div.innerText = questionNumber;
+                modalIncorrectAnswers.appendChild(div);
+            });
+
+            // Mostrar detalles adicionales
             const endTime = new Date();
-            const timeTaken = Math.floor((endTime - startTime) / 1000); // Tiempo en segundos
+            const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
+            const currentDate = new Date();
+            const modalDetails = document.getElementById('modalDetails');
+            modalDetails.innerHTML = `
+                Fecha: ${currentDate.toLocaleDateString()}<br>
+                Hora: ${currentDate.toLocaleTimeString()}<br>
+                Tiempo en realizar la prueba: ${timeTaken} segundos<br>
+                Nombre de la unidad: ${evaluationName}<br>
+                Calificación: ${((quizData.length - incorrectAnswers.length) / quizData.length * 10).toFixed(2)}/10
+            `;
 
-            showResults(`Calificación: ${score.toFixed(2)} / 10`, incorrectAnswers, timeTaken);
-        });
+            // Mostrar intentos de manipulación
+            document.getElementById('manipulationCount').innerText = `Intentos de manipulación detectados: ${manipulationCount}`;
 
-        function showResults(scoreText, incorrectAnswers, timeTaken) {
-            const date = new Date();
-            const minutesTaken = Math.floor(timeTaken / 60);
-            const secondsTaken = timeTaken % 60;
+            // Mostrar contador de reintentos
+            document.getElementById('attemptCount').innerText = `Reintentos: ${attempt + 1}`;
 
-            document.getElementById('quiz').classList.add('hidden');
-            document.getElementById('resultsModal').style.display = 'block';
-            document.getElementById('overlay').style.display = 'block';
+            const modal = document.getElementById('resultModal');
+            modal.style.display = 'block';
 
-            document.getElementById('date').textContent = `Fecha: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-            document.getElementById('timeTaken').textContent = `Tiempo tomado: ${minutesTaken} minutos y ${secondsTaken} segundos`;
-            document.getElementById('unitEvaluated').textContent = `Unidad Evaluada: Unidad 9: La Tierra y el Ser Humano`;
-            document.getElementById('studentName').textContent = `Nombre del Estudiante: ${document.getElementById('name').value}`;
-            document.getElementById('studentNIE').textContent = `NIE: ${document.getElementById('nie').value}`;
-            document.getElementById('score').textContent = scoreText;
-            document.getElementById('incorrectAnswers').textContent = incorrectAnswers.join(', ');
+            attempt++;
+            if (attempt >= maxAttempts) {
+                alert('Has alcanzado el número máximo de intentos.');
+                // Aquí puedes agregar código para bloquear la MAC o deshabilitar la evaluación
+            }
         }
 
-        document.getElementById('closeModal').addEventListener('click', function () {
-            document.getElementById('resultsModal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
+        document.getElementById('submit').addEventListener('click', submitQuiz);
+
+        document.getElementById('startQuiz').addEventListener('click', function() {
+            const nie = document.getElementById('nie').value.trim();
+            if (!authorizedNIEs.includes(nie)) {
+                alert('NIE no autorizado.');
+                return;
+            }
+            document.querySelector('.quiz-container').style.display = 'block';
+            document.getElementById('infoModal').style.display = 'none';
+            startTime = new Date();
+            startTimer();
+            loadQuiz();
         });
+
+        // Modal close functionality
+        const closeModal = document.getElementsByClassName('close')[0];
+        closeModal.onclick = function() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('resultModal')) {
+                document.getElementById('resultModal').style.display = 'none';
+            }
+        }
+
+        document.addEventListener("contextmenu", function(e){
+            e.preventDefault();
+            updateCaptureCount();
+        }, false);
+
+        function startTimer() {
+            timer = setInterval(function() {
+                timeLeft--;
+                const timerElement = document.getElementById('timer');
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                timerElement.innerText = `${minutes}:${seconds}`;
+
+                if (timeLeft <= 600) {
+                    timerElement.style.backgroundColor = 'red';
+                } else if (timeLeft <= 1200) {
+                    timerElement.style.backgroundColor = 'orange';
+                } else {
+                    timerElement.style.backgroundColor = 'green';
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function updateCaptureCount() {
+            manipulationCount++;
+        }
+
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden') {
+                updateCaptureCount();
+            }
+        });
+
+        window.addEventListener('pagehide', function() {
+            updateCaptureCount();
+        });
+
+        window.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            updateCaptureCount();
+        });
+
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                updateCaptureCount();
+            }
+        });
+
+        window.onload = function() {
+            document.getElementById('infoModal').style.display = 'block';
+        }
     </script>
 </body>
 </html>
