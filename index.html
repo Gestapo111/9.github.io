@@ -578,7 +578,7 @@
                 Hora: ${currentDate.toLocaleTimeString()}<br>
                 Tiempo en realizar la prueba: ${timeTaken} segundos<br>
                 Nombre de la unidad: ${evaluationName}<br>
-                Calificación: ${((quizData.length - incorrectAnswers.length) / quizData.length * 10).toFixed(2)}/10
+                Calificación: ${(10 * (quizData.length * 10 - incorrectAnswers.length) / (quizData.length * 10)).toFixed(2)}/10
             `;
 
             // Mostrar intentos de manipulación
